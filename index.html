@@ -1093,7 +1093,7 @@ async function processDownload(group) {
     // controls in the preview table (defaults keyed by frame count).
     const repeat = group.loopMode === 'infinite' ? 0
       : group.loopMode === 'once' ? -1
-      : Math.max(1, group.loopCount);
+           : (group.loopCount <= 1 ? -1 : group.loopCount - 1);
     const { blob, filename } = await encodeGif(group, group.delay, repeat);
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
