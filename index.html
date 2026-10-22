@@ -148,3 +148,1174 @@
     font-weight:500;
     padding:5px 11px;
     border-radius:8px;
+    width:fit-content;
+  }
+  .tag.warn{background:var(--warn-soft);color:var(--warn);}
+  .tag.bad{background:var(--bad-soft);color:var(--bad);}
+  .tag.ok{background:var(--good-soft);color:var(--good);}
+
+  /* ---- Ad cards (Step 2) ---- */
+  .ad-list{display:flex;flex-direction:column;gap:20px;}
+  .ad-card{
+    background:var(--surface);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:16px;
+    box-shadow:var(--shadow-card);
+    overflow:hidden;
+  }
+  .ad-card.status-ok{border-color:rgba(95,191,130,.45);}
+  .ad-card.status-warn{border-color:rgba(232,163,61,.5);}
+  .ad-card.status-bad{border-color:rgba(224,104,90,.5);opacity:.88;}
+
+  .ad-card-header{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:20px;padding:22px 24px 18px;flex-wrap:wrap;
+  }
+  .ad-title-block{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .ad-title-block .name{
+    font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:-.01em;
+    color:var(--text);line-height:1.2;
+    overflow-wrap:break-word;
+  }
+  .name-row{display:flex;align-items:center;gap:8px;min-width:0;}
+  .name-row .name{min-width:0;}
+  .name-edit-btn{
+    background:transparent;border:none;box-shadow:none;
+    padding:4px 6px;color:var(--text-faint);font-size:14px;
+    cursor:pointer;border-radius:6px;line-height:1;flex-shrink:0;
+  }
+  .name-edit-btn:hover{color:var(--text-dim);background:var(--surface-2);transform:none;}
+  .name-input{
+    font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:-.01em;
+    background:var(--field-bg);color:var(--text);border:none;border-radius:8px;
+    padding:3px 9px;box-shadow:inset 0 0 0 1.5px var(--accent);
+    min-width:160px;max-width:100%;
+  }
+  .name-input:focus{outline:none;}
+  .name-error{font-size:12px;color:var(--bad);}
+  .status-pill{
+    font-family:var(--sans);font-size:12px;font-weight:600;
+    border-radius:20px;padding:4px 13px;width:fit-content;
+  }
+  .status-pill.ok{background:var(--good-soft);color:var(--good);}
+  .status-pill.warn{background:var(--warn-soft);color:var(--warn);}
+  .status-pill.bad{background:var(--bad-soft);color:var(--bad);}
+
+  .frame-stat{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:var(--surface-2);
+    border-radius:14px;
+    padding:10px 22px;
+    min-width:84px;
+    flex-shrink:0;
+  }
+  .frame-stat .num{
+    font-family:var(--sans);font-size:30px;font-weight:800;line-height:1;
+    color:var(--text);font-variant-numeric:tabular-nums;
+  }
+  .frame-stat .label{
+    font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--text-dim);font-weight:700;margin-top:5px;
+  }
+
+  .ad-card-settings{
+    display:flex;align-items:flex-end;gap:30px;flex-wrap:wrap;
+    padding:0 24px 18px;
+  }
+  .control-group{display:flex;flex-direction:column;gap:6px;}
+  .control-label{
+    font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--text-dim);font-weight:700;
+  }
+  .control-inline{display:flex;align-items:center;gap:8px;}
+
+  .ad-card-warnings{
+    padding:0 24px 18px;display:flex;flex-wrap:wrap;gap:8px;
+  }
+
+  .ad-card-body{
+    background:var(--surface-3);
+    padding:20px 24px;
+  }
+
+  .ad-name-btn{display:none;} /* legacy, unused after card redesign */
+
+  .detail-flex{display:flex;gap:28px;flex-wrap:wrap;align-items:flex-start;}
+  .frame-list{display:flex;gap:12px;flex-wrap:wrap;}
+  .frame-item{
+    width:125px;text-align:center;cursor:grab;
+    border:none;border-radius:12px;padding:8px;
+    background:var(--surface-2);box-shadow:var(--shadow-sm);
+    transition:box-shadow .12s ease;
+  }
+  .frame-item:active{cursor:grabbing;}
+  .frame-item img{width:100%;height:104px;object-fit:contain;background:#0e1114;border-radius:8px;display:block;}
+  .frame-item .num{font-family:var(--sans);font-size:11.5px;color:var(--text-dim);margin-top:6px;font-weight:600;}
+  .preview-canvas-wrap{flex-shrink:0;}
+  .preview-canvas-wrap canvas{background:#0e1114;border-radius:12px;box-shadow:var(--shadow-sm);display:block;}
+
+  body.drop-active #panel-source{box-shadow:0 0 0 2px var(--accent), var(--shadow-card);}
+  .merge-prompt{
+    background:var(--accent-soft);
+    border:1px solid rgba(232,163,61,.5);
+    border-radius:16px;
+    padding:18px 20px;
+    margin-bottom:20px;
+  }
+  .merge-prompt .merge-title{font-weight:700;font-size:14.5px;margin:0 0 4px;}
+  .merge-files{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 14px;}
+  .merge-file{font-family:var(--mono);font-size:12px;background:var(--surface-2);border-radius:8px;padding:4px 9px;color:var(--text);overflow-wrap:anywhere;}
+  .merge-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .merge-controls input[type="text"]{
+    background:var(--field-bg);border:none;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    color:var(--text);border-radius:10px;padding:8px 10px;
+    font-family:var(--sans);font-size:13px;min-width:220px;
+  }
+  .merge-controls input[type="text"]:focus{outline:none;box-shadow:0 0 0 2px var(--accent);}
+  .merge-error{color:var(--bad);font-size:12.5px;margin-top:8px;display:none;}
+  .empty{color:var(--text-dim);font-style:italic;padding:6px 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Internal tool · v1.1 · runs entirely in this browser tab</p>
+    <h1>GIF Batch Assembler</h1>
+    <p>Pick your exported ad frames, review the detected groups, then generate one animated GIF per ad. No files leave this machine.</p>
+  </header>
+
+  <div class="panel" id="panel-source">
+    <h2>1 — Source files</h2>
+    <div class="row">
+      <button id="btn-select" class="primary">Select Files…</button>
+      <span class="status" id="status-folder">No files selected.</span>
+    </div>
+    <p class="hint" style="margin:12px 0 0;">Choose the frames you want (hold Ctrl or Cmd, or Shift, to select several), or drag and drop image files anywhere on this page. Files named like AdName_01.png are grouped by name.</p>
+  </div>
+
+  <div class="panel" id="panel-preview" style="display:none;">
+    <h2>2 — Preview &amp; per-ad settings</h2>
+    <p class="hint" style="margin:-4px 0 14px;">Speed and loop default automatically by frame count (2-frame → 3500ms/capped ×4, 3-frame → 2400ms/capped ×4, other counts → 110ms/infinite). Override any ad individually. Colored edge = status: green OK, amber has warnings, red skipped.</p>
+    <div id="merge-prompts"></div>
+    <div id="preview-list" class="ad-list"></div>
+  </div>
+
+  <div class="panel" id="panel-generate" style="display:none;">
+    <h2>3 — Download</h2>
+    <p class="hint" style="margin:-4px 0 14px;">Each card above has its own Download button. Use Download All to process every valid ad in sequence.</p>
+    <div class="row">
+      <button id="btn-download-all" class="primary">Download All</button>
+      <span class="status" id="status-generate"></span>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { GIFEncoder, quantize, applyPalette } from "https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js";
+
+// ---------- Constants ----------
+const ACCEPTED_EXT = new Set(['png', 'jpg', 'jpeg', 'webp']);
+const MAX_LOOP_MS = 30000;
+
+// Per-ad default speed/loop, keyed by frame count. Falls back to the "other"
+// entry for anything not explicitly listed (project decision, Aug 2026).
+function computeDefaults(frameCount) {
+  if (frameCount === 2) return { delay: 3500, loopMode: 'capped', loopCount: 4 };
+  if (frameCount === 3) return { delay: 2400, loopMode: 'capped', loopCount: 4 };
+  return { delay: 110, loopMode: 'infinite', loopCount: 4 };
+}
+
+// ---------- State ----------
+/** groups: Map<adName, { frames: [{num, file}], warnings: [{level, text}], skip: bool, maxW, maxH }> */
+let groups = new Map();
+let ignoredCount = 0;
+
+
+// ---------- DOM refs ----------
+const btnSelect = document.getElementById('btn-select');
+const statusFolder = document.getElementById('status-folder');
+const panelPreview = document.getElementById('panel-preview');
+const previewList = document.getElementById('preview-list');
+const panelGenerate = document.getElementById('panel-generate');
+const btnDownloadAll = document.getElementById('btn-download-all');
+const statusGenerate = document.getElementById('status-generate');
+
+// ---------- Filename parsing ----------
+// Splits "SummerSale_01.png" -> { prefix: "SummerSale", num: 1, ext: "png" }
+// Separator can be "_", "-", or a run of spaces. Greedy prefix match so the
+// LAST separator+digits run at the end of the name is treated as the frame number.
+function parseFilename(name) {
+  const dot = name.lastIndexOf('.');
+  if (dot === -1) return null;
+  const ext = name.slice(dot + 1).toLowerCase();
+  const base = name.slice(0, dot);
+  const m = base.match(/^(.+)[_\-\s]+(\d+)$/);
+  if (!m) return null;
+  const prefix = m[1].trim();
+  if (!prefix) return null;
+  const num = parseInt(m[2], 10);
+  return { prefix, num, ext };
+}
+
+// ---------- File selection (standard file picker + drag and drop) ----------
+// Uses a plain <input type="file"> instead of the File System Access API, so it
+// works in Chrome, Edge, Safari and Firefox on both Mac and Windows. The browser's
+// own dialog shows the files, so the person can handpick exactly which frames to use.
+const ACCEPT_ATTR = '.png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp';
+
+// Opens the native multi-file dialog and resolves with the chosen File[]
+// (empty array if the person cancels). Must be called from a click handler.
+function pickFiles() {
+  return new Promise((resolve) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.accept = ACCEPT_ATTR;
+    input.style.display = 'none';
+    let done = false;
+    function finish(files) {
+      if (done) return;
+      done = true;
+      window.removeEventListener('focus', onFocus);
+      input.remove();
+      resolve(files);
+    }
+    // Fallback for browsers that don't fire "cancel": when the window regains
+    // focus and nothing was chosen shortly after, treat it as cancelled.
+    function onFocus() {
+      setTimeout(() => { if (!input.files || input.files.length === 0) finish([]); }, 1500);
+    }
+    input.addEventListener('change', () => finish([...input.files]));
+    input.addEventListener('cancel', () => finish([]));
+    window.addEventListener('focus', onFocus);
+    document.body.appendChild(input);
+    input.click();
+  });
+}
+
+// Natural filename order (frame_2 before frame_10).
+const byFileName = (a, b) => a.rawName.localeCompare(b.rawName, undefined, { numeric: true, sensitivity: 'base' });
+
+// Merge prompts: [{ dim: '320x100', keys: [groupKey, ...] }]
+let mergeCandidates = [];
+let mergeCounter = 0;
+
+async function handleFiles(files, note = '') {
+  statusFolder.classList.remove('err');
+  if (!files.length) {
+    statusFolder.textContent = 'No files selected.' + note;
+    return;
+  }
+  statusFolder.textContent = 'Scanning…';
+  const rawGroups = new Map(); // prefix -> array of {num, file, rawName}
+  ignoredCount = 0;
+
+  for (const file of files) {
+    const parsed = parseFilename(file.name);
+    if (!parsed || !ACCEPTED_EXT.has(parsed.ext)) { ignoredCount++; continue; }
+    if (!rawGroups.has(parsed.prefix)) rawGroups.set(parsed.prefix, []);
+    rawGroups.get(parsed.prefix).push({ num: parsed.num, file, rawName: file.name });
+  }
+
+  if (rawGroups.size === 0) {
+    statusFolder.classList.add('err');
+    statusFolder.textContent = `None of the ${files.length} selected file(s) matched the naming pattern (e.g. AdName_01.png) or a supported image type.` + note;
+    return;
+  }
+
+  statusFolder.textContent = 'Reading image dimensions…';
+  groups = await buildGroups(rawGroups);
+  mergeCandidates = await findMergeCandidates();
+  statusFolder.textContent = `${files.length} file(s) selected, ${groups.size} ad group(s) found` +
+    (ignoredCount ? `, ${ignoredCount} file(s) ignored (unsupported type or name pattern).` : '.') + note;
+
+  renderPreview();
+  panelPreview.style.display = '';
+  panelGenerate.style.display = '';
+  statusGenerate.textContent = '';
+}
+
+btnSelect.addEventListener('click', async () => {
+  const files = await pickFiles();
+  if (files.length) await handleFiles(files);
+});
+
+// Drag and drop image files anywhere on the page. Only reacts to real file drags,
+// so the frame-reorder drag inside an ad card is unaffected.
+let dragDepth = 0;
+const dragHasFiles = (e) => e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+document.addEventListener('dragenter', (e) => {
+  if (!dragHasFiles(e)) return;
+  e.preventDefault();
+  dragDepth++;
+  document.body.classList.add('drop-active');
+});
+document.addEventListener('dragover', (e) => {
+  if (!dragHasFiles(e)) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'copy';
+});
+document.addEventListener('dragleave', (e) => {
+  if (!dragHasFiles(e)) return;
+  dragDepth = Math.max(0, dragDepth - 1);
+  if (!dragDepth) document.body.classList.remove('drop-active');
+});
+document.addEventListener('drop', async (e) => {
+  if (!dragHasFiles(e)) return;
+  e.preventDefault();
+  dragDepth = 0;
+  document.body.classList.remove('drop-active');
+
+  // Read everything synchronously: dataTransfer is cleared after the handler yields.
+  const files = [];
+  let folders = 0;
+  const items = e.dataTransfer.items;
+  if (items && items.length) {
+    for (const item of items) {
+      if (item.kind !== 'file') continue;
+      const entry = typeof item.webkitGetAsEntry === 'function' ? item.webkitGetAsEntry() : null;
+      if (entry && entry.isDirectory) { folders++; continue; }
+      const f = item.getAsFile();
+      if (f) files.push(f);
+    }
+  } else {
+    files.push(...e.dataTransfer.files);
+  }
+  const note = folders ? ' Folders cannot be dropped, drop the image files instead.' : '';
+  await handleFiles(files, note);
+});
+
+// ---------- Merge prompts (same-size single frames with different names) ----------
+// Grouping stays name-based. When several single-frame ads share identical
+// dimensions, they are probably one ad whose frames were named inconsistently,
+// so we ask rather than merging automatically.
+async function findMergeCandidates() {
+  const buckets = new Map();
+  for (const [key, g] of groups.entries()) {
+    if (g.frames.length !== 1) continue;
+    const f = g.frames[0];
+    try {
+      const bmp = await createImageBitmap(f.file);
+      f.width = bmp.width; f.height = bmp.height;
+      bmp.close();
+    } catch (e) { continue; }
+    const dim = `${f.width}x${f.height}`;
+    if (!buckets.has(dim)) buckets.set(dim, []);
+    buckets.get(dim).push(key);
+  }
+  return [...buckets.entries()]
+    .filter(([, keys]) => keys.length >= 2)
+    .map(([dim, keys]) => ({ dim, keys }));
+}
+
+// Longest common prefix of the ad names, minus trailing separators; falls back to the first name.
+function suggestMergedName(names) {
+  let p = names[0];
+  for (const n of names.slice(1)) {
+    let i = 0;
+    while (i < p.length && i < n.length && p[i] === n[i]) i++;
+    p = p.slice(0, i);
+  }
+  p = p.replace(/[\s_\-]+$/, '').trim();
+  return p.length >= 3 ? p : names[0];
+}
+
+async function mergeGroups(cand, name) {
+  const members = cand.keys.map(k => groups.get(k)).filter(Boolean);
+  const ordered = members.map(g => g.frames[0]).sort(byFileName);
+  // Renumber 1..n in filename order so the original (often colliding) frame
+  // numbers don't trigger duplicate-number warnings. Reorder by dragging afterwards if needed.
+  const rawFrames = ordered.map((f, i) => ({ num: i + 1, file: f.file, rawName: f.rawName }));
+  const processed = await processAdFrames(rawFrames);
+  const d = computeDefaults(processed.frames.length);
+
+  for (const k of cand.keys) {
+    const g = groups.get(k);
+    if (g && g._stopPreview) g._stopPreview();
+    groups.delete(k);
+  }
+  groups.set(`__merged_${++mergeCounter}`, {
+    ...processed, _name: name,
+    delay: d.delay, loopMode: d.loopMode, loopCount: d.loopCount,
+  });
+  groups = new Map([...groups.entries()].sort((a, b) => a[1]._name.localeCompare(b[1]._name)));
+  mergeCandidates = mergeCandidates.filter(c => c.dim !== cand.dim);
+  statusFolder.classList.remove('err');
+  statusFolder.textContent = `Merged ${rawFrames.length} files into "${name}".`;
+  renderPreview();
+}
+
+function renderMergePrompts() {
+  const host = document.getElementById('merge-prompts');
+  host.innerHTML = '';
+
+  // Drop prompts that no longer apply (ad removed, or no longer a single frame).
+  mergeCandidates = mergeCandidates
+    .map(c => ({ ...c, keys: c.keys.filter(k => groups.has(k) && groups.get(k).frames.length === 1) }))
+    .filter(c => c.keys.length >= 2);
+
+  for (const cand of mergeCandidates) {
+    const members = cand.keys.map(k => groups.get(k));
+    const files = members.map(g => g.frames[0]).sort(byFileName);
+
+    const box = document.createElement('div');
+    box.className = 'merge-prompt';
+
+    const title = document.createElement('div');
+    title.className = 'merge-title';
+    title.textContent = `${files.length} single-frame files are the same size (${cand.dim.replace('x', '×')}) but have different names. Are they one ad?`;
+    const sub = document.createElement('div');
+    sub.className = 'hint';
+    sub.textContent = 'If yes, they merge into one ad in filename order. You can drag to reorder afterwards.';
+
+    const chips = document.createElement('div');
+    chips.className = 'merge-files';
+    for (const f of files) {
+      const chip = document.createElement('span');
+      chip.className = 'merge-file';
+      chip.textContent = f.rawName;
+      chips.appendChild(chip);
+    }
+
+    const controls = document.createElement('div');
+    controls.className = 'merge-controls';
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.value = suggestMergedName(members.map(g => g._name));
+    nameInput.setAttribute('aria-label', 'Name for the merged ad');
+    const mergeBtn = document.createElement('button');
+    mergeBtn.type = 'button';
+    mergeBtn.className = 'primary';
+    mergeBtn.textContent = 'Merge into one ad';
+    const keepBtn = document.createElement('button');
+    keepBtn.type = 'button';
+    keepBtn.textContent = 'Keep separate';
+    controls.append(nameInput, mergeBtn, keepBtn);
+
+    const err = document.createElement('div');
+    err.className = 'merge-error';
+    function showErr(msg) { err.textContent = msg; err.style.display = 'block'; }
+
+    mergeBtn.addEventListener('click', async () => {
+      const name = nameInput.value.trim();
+      if (!name) { showErr("Name can't be empty."); return; }
+      const taken = [...groups.entries()].some(([k, g]) => !cand.keys.includes(k) && g._name === name);
+      if (taken) { showErr('Another ad already uses this name.'); return; }
+      mergeBtn.disabled = true;
+      mergeBtn.textContent = 'Merging…';
+      try {
+        await mergeGroups(cand, name);
+      } catch (e) {
+        showErr(`Merge failed: ${e.message}`);
+        mergeBtn.disabled = false;
+        mergeBtn.textContent = 'Merge into one ad';
+      }
+    });
+    keepBtn.addEventListener('click', () => {
+      mergeCandidates = mergeCandidates.filter(c => c.dim !== cand.dim);
+      renderMergePrompts();
+    });
+
+    box.append(title, sub, chips, controls, err);
+    host.appendChild(box);
+  }
+}
+
+// ---------- Per-ad frame processing: dedupe, sort, detect gaps/duplicates/dimensions ----------
+// Shared by the initial folder scan (buildGroups) and the per-ad "Replace frames" flow,
+// so a manual re-upload runs through exactly the same detection rules as a fresh scan.
+async function processAdFrames(rawFrames) {
+  const warnings = [];
+
+  // Detect duplicate frame numbers (including zero-padding collisions, since
+  // we already normalized via parseInt). Keep the first occurrence per number.
+  const byNum = new Map();
+  const dupNums = new Set();
+  for (const f of rawFrames) {
+    if (byNum.has(f.num)) dupNums.add(f.num);
+    else byNum.set(f.num, f);
+  }
+  if (dupNums.size) {
+    warnings.push({ level: 'warn', text: `Duplicate frame number(s): ${[...dupNums].sort((a,b)=>a-b).join(', ')} — using first file found for each, others ignored.` });
+  }
+
+  // Sorted unique frames by numeric value
+  const nums = [...byNum.keys()].sort((a, b) => a - b);
+  const frames = nums.map(n => byNum.get(n));
+
+  // Gap detection
+  if (nums.length > 1) {
+    const missing = [];
+    for (let n = nums[0]; n <= nums[nums.length - 1]; n++) {
+      if (!byNum.has(n)) missing.push(n);
+    }
+    if (missing.length) {
+      warnings.push({ level: 'warn', text: `Missing frame number(s): ${missing.join(', ')} — will render with a gap.` });
+    }
+  }
+
+  // Single-frame ads: flag, exclude from generation
+  let skip = false;
+  if (nums.length < 2) {
+    warnings.push({ level: 'bad', text: 'Only one frame found — not enough to animate. Skipped.' });
+    skip = true;
+  }
+
+  // Dimension check (only if we're not already skipping)
+  let maxW = 0, maxH = 0, sizeMismatch = false;
+  if (!skip) {
+    for (const f of frames) {
+      try {
+        const bmp = await createImageBitmap(f.file);
+        f.width = bmp.width;
+        f.height = bmp.height;
+        bmp.close();
+      } catch (e) {
+        f.width = 0; f.height = 0;
+      }
+      if (f.width > maxW) maxW = f.width;
+      if (f.height > maxH) maxH = f.height;
+    }
+    const firstW = frames[0].width, firstH = frames[0].height;
+    if (frames.some(f => f.width !== firstW || f.height !== firstH)) {
+      sizeMismatch = true;
+      warnings.push({ level: 'warn', text: `Mismatched frame sizes — will auto-pad/center all frames to ${maxW}×${maxH}.` });
+    }
+  }
+
+  return { frames, warnings, skip, maxW, maxH, sizeMismatch };
+}
+
+// ---------- Build groups (initial folder scan) ----------
+async function buildGroups(rawGroups) {
+  const result = new Map();
+
+  for (const [prefix, rawFrames] of rawGroups.entries()) {
+    const processed = await processAdFrames(rawFrames);
+    const defaults = computeDefaults(processed.frames.length);
+    result.set(prefix, {
+      ...processed, _name: prefix,
+      delay: defaults.delay, loopMode: defaults.loopMode, loopCount: defaults.loopCount,
+    });
+  }
+
+  // Return sorted by ad name for stable display
+  return new Map([...result.entries()].sort((a, b) => a[0].localeCompare(b[0])));
+}
+
+// ---------- Replace frames for one ad only (re-upload flow) ----------
+async function replaceAdFrames(name, group) {
+  const picked = await pickFiles();
+  if (picked.length === 0) return; // cancelled
+
+  const rawFrames = [];
+  let ignored = 0;
+  for (const file of picked) {
+    const parsed = parseFilename(file.name);
+    if (!parsed || !ACCEPTED_EXT.has(parsed.ext)) { ignored++; continue; }
+    rawFrames.push({ num: parsed.num, file, rawName: file.name });
+  }
+
+  if (rawFrames.length === 0) {
+    alert('None of the selected files matched the expected naming pattern (e.g. Name_01.png), or none were a supported image type. Nothing was replaced.');
+    return;
+  }
+
+  const oldFrameCount = group.frames.length;
+  const processed = await processAdFrames(rawFrames);
+  if (ignored) {
+    processed.warnings.push({ level: 'warn', text: `${ignored} selected file(s) ignored (unsupported type or name pattern).` });
+  }
+
+  // Stop any running preview tied to the old frame set before we swap it out.
+  if (group._stopPreview) group._stopPreview();
+
+  group.frames = processed.frames;
+  group.warnings = processed.warnings;
+  group.skip = processed.skip;
+  group.maxW = processed.maxW;
+  group.maxH = processed.maxH;
+  group.sizeMismatch = processed.sizeMismatch;
+  delete group._restartPreview;
+  delete group._stopPreview;
+
+  // Per project decision: if the frame count changed, reset speed/loop to the
+  // new count's default; otherwise leave whatever the person already set.
+  if (processed.frames.length !== oldFrameCount) {
+    const d = computeDefaults(processed.frames.length);
+    group.delay = d.delay;
+    group.loopMode = d.loopMode;
+    group.loopCount = d.loopCount;
+  }
+
+  renderPreview();
+}
+
+// ---------- Duration check (per-ad, capped-loop only) ----------
+function durationInfo(group) {
+  const frameCount = group.frames.length;
+  if (group.loopMode === 'capped') {
+    const ms = frameCount * group.delay * group.loopCount;
+    return { text: `≈${(ms / 1000).toFixed(1)}s total`, exceeds: ms > MAX_LOOP_MS };
+  }
+  if (group.loopMode === 'once') {
+    const ms = frameCount * group.delay;
+    return { text: `${(ms / 1000).toFixed(1)}s, plays once`, exceeds: false };
+  }
+  return { text: 'infinite', exceeds: false };
+}
+
+// ---------- Preview table ----------
+function renderPreview() {
+  renderMergePrompts();
+  // Stop any running preview animations before we tear down the old DOM,
+  // so no orphaned setIntervals keep ticking against removed canvases.
+  for (const g of groups.values()) {
+    if (g._stopPreview) g._stopPreview();
+  }
+
+  previewList.innerHTML = '';
+  if (groups.size === 0) {
+    previewList.innerHTML = '<div class="empty">No ad groups detected in these files.</div>';
+    return;
+  }
+
+  for (const [name, group] of groups.entries()) {
+    const statusClass = group.skip ? 'status-bad' : (group.warnings.length ? 'status-warn' : 'status-ok');
+
+    const card = document.createElement('div');
+    card.className = `ad-card ${statusClass}`;
+
+    // ---- Header: name (large, top of hierarchy), status pill, and a
+    // standout frame-count stat block (this is the thing worth noticing first) ----
+    const header = document.createElement('div');
+    header.className = 'ad-card-header';
+
+    const titleBlock = document.createElement('div');
+    titleBlock.className = 'ad-title-block';
+
+    const nameRow = document.createElement('div');
+    nameRow.className = 'name-row';
+    const nameLabel = document.createElement('div');
+    nameLabel.className = 'name';
+    nameLabel.textContent = group._name;
+    const renameBtn = document.createElement('button');
+    renameBtn.type = 'button';
+    renameBtn.className = 'name-edit-btn';
+    renameBtn.title = 'Rename this ad';
+    renameBtn.textContent = '✎';
+    nameRow.append(nameLabel, renameBtn);
+
+    const nameError = document.createElement('div');
+    nameError.className = 'name-error';
+    nameError.style.display = 'none';
+
+    // Renaming only changes group._name (used for the card label and the
+    // output GIF filename) — it never touches the source files or the
+    // detection key used for grouping, per project decision.
+    function showNameError(msg) {
+      nameError.textContent = msg;
+      nameError.style.display = '';
+    }
+    function hideNameError() {
+      nameError.style.display = 'none';
+    }
+    function startRename() {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'name-input';
+      input.value = group._name;
+      nameRow.replaceChild(input, nameLabel);
+      renameBtn.style.display = 'none';
+      input.focus();
+      input.select();
+
+      let settled = false;
+      function commit() {
+        if (settled) return;
+        const newName = input.value.trim();
+        if (!newName) { showNameError("Name can't be empty."); input.focus(); return; }
+        const dup = [...groups.values()].some(g => g !== group && g._name === newName);
+        if (dup) { showNameError('Another ad already uses this name.'); input.focus(); return; }
+        settled = true;
+        group._name = newName;
+        nameLabel.textContent = newName;
+        hideNameError();
+        nameRow.replaceChild(nameLabel, input);
+        renameBtn.style.display = '';
+      }
+      function cancel() {
+        settled = true;
+        hideNameError();
+        nameRow.replaceChild(nameLabel, input);
+        renameBtn.style.display = '';
+      }
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); commit(); }
+        else if (e.key === 'Escape') { e.preventDefault(); cancel(); }
+      });
+      input.addEventListener('blur', () => commit());
+    }
+    renameBtn.addEventListener('click', (e) => { e.stopPropagation(); startRename(); });
+
+    const statusPill = document.createElement('span');
+    if (group.skip) {
+      statusPill.className = 'status-pill bad';
+      statusPill.textContent = 'Skipped';
+    } else if (group.warnings.length) {
+      statusPill.className = 'status-pill warn';
+      statusPill.textContent = `${group.warnings.length} warning${group.warnings.length === 1 ? '' : 's'}`;
+    } else {
+      statusPill.className = 'status-pill ok';
+      statusPill.textContent = 'OK';
+    }
+    titleBlock.append(nameRow, nameError, statusPill);
+
+    const frameStat = document.createElement('div');
+    frameStat.className = 'frame-stat';
+    const frameNum = document.createElement('div');
+    frameNum.className = 'num';
+    frameNum.textContent = group.frames.length;
+    const frameLabel = document.createElement('div');
+    frameLabel.className = 'label';
+    frameLabel.textContent = group.frames.length === 1 ? 'Frame' : 'Frames';
+    frameStat.append(frameNum, frameLabel);
+
+    header.append(titleBlock, frameStat);
+    card.appendChild(header);
+
+    // ---- Settings row: speed + loop ----
+    const settingsRow = document.createElement('div');
+    settingsRow.className = 'ad-card-settings';
+
+    const speedGroup = document.createElement('div');
+    speedGroup.className = 'control-group';
+    const speedLabel = document.createElement('div');
+    speedLabel.className = 'control-label';
+    speedLabel.textContent = 'Speed';
+    const speedInline = document.createElement('div');
+    speedInline.className = 'control-inline';
+    const speedInput = document.createElement('input');
+    speedInput.type = 'number';
+    speedInput.className = 'no-spin';
+    speedInput.min = '10';
+    speedInput.step = '10';
+    speedInput.style.width = '80px';
+    speedInput.value = group.delay;
+    speedInput.disabled = group.skip;
+    const speedUnit = document.createElement('span');
+    speedUnit.className = 'hint';
+    speedUnit.textContent = 'ms / frame';
+    speedInline.append(speedInput, speedUnit);
+    speedGroup.append(speedLabel, speedInline);
+
+    const loopGroup = document.createElement('div');
+    loopGroup.className = 'control-group';
+    const loopLabel = document.createElement('div');
+    loopLabel.className = 'control-label';
+    loopLabel.textContent = 'Loop';
+    const loopInline = document.createElement('div');
+    loopInline.className = 'control-inline';
+    const loopSelect = document.createElement('select');
+    loopSelect.disabled = group.skip;
+    loopSelect.className = 'field';
+    for (const [val, label] of [['infinite', 'Infinite'], ['capped', 'Capped'], ['once', 'No loop (play once)']]) {
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = label;
+      if (group.loopMode === val) opt.selected = true;
+      loopSelect.appendChild(opt);
+    }
+    const loopCountInput = document.createElement('input');
+    loopCountInput.type = 'number';
+    loopCountInput.min = '1';
+    loopCountInput.max = '50';
+    loopCountInput.style.width = '52px';
+    loopCountInput.value = group.loopCount;
+    loopCountInput.style.display = group.loopMode === 'capped' ? '' : 'none';
+    loopCountInput.disabled = group.skip;
+    loopInline.append(loopSelect, loopCountInput);
+    loopGroup.append(loopLabel, loopInline);
+
+    const durationGroup = document.createElement('div');
+    durationGroup.className = 'control-group';
+    const durationLabel = document.createElement('div');
+    durationLabel.className = 'control-label';
+    durationLabel.textContent = 'Total length';
+    const durationLine = document.createElement('div');
+    durationLine.className = 'hint';
+    durationGroup.append(durationLabel, durationLine);
+
+    function updateDurationCell() {
+      const info = durationInfo(group);
+      durationLine.textContent = info.text;
+      durationLine.style.color = info.exceeds ? 'var(--bad)' : '';
+      if (info.exceeds) durationLine.textContent += ' — exceeds 30s cap';
+    }
+
+    speedInput.addEventListener('input', () => {
+      group.delay = Math.max(10, parseInt(speedInput.value, 10) || group.delay);
+      updateDurationCell();
+      if (group._expanded && group._restartPreview) group._restartPreview();
+    });
+    loopSelect.addEventListener('change', () => {
+      group.loopMode = loopSelect.value;
+      loopCountInput.style.display = group.loopMode === 'capped' ? '' : 'none';
+      updateDurationCell();
+      if (group._expanded && group._restartPreview) group._restartPreview();
+    });
+    loopCountInput.addEventListener('input', () => {
+      group.loopCount = Math.max(1, parseInt(loopCountInput.value, 10) || group.loopCount);
+      updateDurationCell();
+      if (group._expanded && group._restartPreview) group._restartPreview();
+    });
+    updateDurationCell();
+
+    // ---- Replay + Download (per-ad). Replay restarts the live preview
+    // animation in the card body; Download encodes this ad's GIF on click
+    // and downloads it immediately — there's no separate batch "Generate" step. ----
+    const downloadGroup = document.createElement('div');
+    downloadGroup.className = 'control-group';
+    downloadGroup.style.marginLeft = 'auto';
+    const downloadInline = document.createElement('div');
+    downloadInline.className = 'control-inline';
+    const replayBtn = document.createElement('button');
+    replayBtn.type = 'button';
+    replayBtn.className = 'name-edit-btn';
+    replayBtn.style.fontSize = '17px';
+    replayBtn.textContent = '↻';
+    replayBtn.title = 'Restart the preview animation';
+    replayBtn.setAttribute('aria-label', 'Restart the preview animation');
+    replayBtn.disabled = group.skip;
+    replayBtn.addEventListener('click', () => {
+      if (group._restartPreview) group._restartPreview();
+    });
+    const downloadBtn = document.createElement('button');
+    downloadBtn.type = 'button';
+    downloadBtn.className = 'primary';
+    downloadBtn.textContent = 'Download';
+    downloadBtn.disabled = group.skip;
+    downloadBtn.addEventListener('click', () => processDownload(group));
+    downloadInline.append(replayBtn, downloadBtn);
+    const downloadStatus = document.createElement('div');
+    downloadStatus.className = 'hint';
+    downloadGroup.append(downloadInline, downloadStatus);
+    group._downloadBtn = downloadBtn;
+    group._downloadStatus = downloadStatus;
+
+    settingsRow.append(speedGroup, loopGroup, durationGroup, downloadGroup);
+    card.appendChild(settingsRow);
+
+    // ---- Warnings, as wrapped tags ----
+    if (group.warnings.length) {
+      const warnRow = document.createElement('div');
+      warnRow.className = 'ad-card-warnings';
+      for (const w of group.warnings) {
+        const tag = document.createElement('span');
+        tag.className = 'tag ' + (w.level === 'bad' ? 'bad' : 'warn');
+        tag.textContent = w.text;
+        warnRow.appendChild(tag);
+      }
+      card.appendChild(warnRow);
+    }
+
+    // ---- Body: larger thumbnails (drag to reorder) + live preview, plus a
+    // "Replace frames" action. Always shown — this section isn't collapsible.
+    const body = document.createElement('div');
+    body.className = 'ad-card-body';
+    card.appendChild(body);
+
+    previewList.appendChild(card);
+
+    group._expanded = true;
+    body.textContent = 'Loading frames…';
+    buildDetailPanel(body, group, name).then(() => {
+      if (group._restartPreview) group._restartPreview();
+    });
+  }
+}
+
+// Loads (and caches) an ImageBitmap per frame so the live preview can redraw
+// synchronously on each animation tick without re-decoding the source file.
+async function ensureBitmaps(group) {
+  for (const f of group.frames) {
+    if (!f._bitmap) f._bitmap = await createImageBitmap(f.file);
+  }
+}
+
+// Builds the expanded per-ad panel: draggable large thumbnails (reorder only —
+// filenames/frame numbers are untouched, this just changes playback sequence)
+// plus a live canvas preview using the ad's current speed/loop settings.
+async function buildDetailPanel(container, group, adName) {
+  await ensureBitmaps(group);
+  container.innerHTML = '';
+
+  // --- Replace frames (re-upload flow, this ad only) ---
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;';
+  const replaceBtn = document.createElement('button');
+  replaceBtn.textContent = 'Replace frames…';
+  replaceBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const prevText = replaceBtn.textContent;
+    replaceBtn.disabled = true;
+    replaceBtn.textContent = 'Waiting for file selection…';
+    try {
+      await replaceAdFrames(adName, group);
+      // On success, replaceAdFrames() calls renderPreview(), which rebuilds this
+      // whole panel from scratch — nothing further to do here in that case.
+    } finally {
+      replaceBtn.disabled = false;
+      replaceBtn.textContent = prevText;
+    }
+  });
+  const replaceHint = document.createElement('span');
+  replaceHint.className = 'hint';
+  replaceHint.textContent = "Select new frame file(s) to replace this ad's set only — the rest of the batch is untouched.";
+  header.append(replaceBtn, replaceHint);
+  container.appendChild(header);
+
+  // Not enough frames to animate (0 or 1): show what we have and stop here —
+  // nothing to reorder or preview yet, but Replace frames above still works.
+  if (group.frames.length < 2) {
+    const msg = document.createElement('div');
+    msg.className = 'hint';
+    msg.style.marginBottom = '12px';
+    msg.textContent = group.frames.length === 0
+      ? 'No frames for this ad.'
+      : 'Only one frame — not enough to animate. Use Replace frames above to add more.';
+    container.appendChild(msg);
+    if (group.frames.length === 1) {
+      const f = group.frames[0];
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(f.file);
+      img.style.cssText = 'max-width:200px;max-height:200px;object-fit:contain;background:#0e1114;border:1px solid var(--line);border-radius:8px;display:block;';
+      container.appendChild(img);
+    }
+    group._restartPreview = () => {};
+    group._stopPreview = () => {};
+    return;
+  }
+
+  const flex = document.createElement('div');
+  flex.className = 'detail-flex';
+
+  // --- Draggable frame list ---
+  const listWrap = document.createElement('div');
+  listWrap.style.minWidth = '280px';
+  listWrap.style.flex = '1';
+  const listHint = document.createElement('div');
+  listHint.className = 'hint';
+  listHint.style.marginBottom = '8px';
+  listHint.textContent = 'Drag to reorder playback (label = original frame #). This only changes playback order, not filenames.';
+  const frameList = document.createElement('div');
+  frameList.className = 'frame-list';
+  listWrap.append(listHint, frameList);
+
+  function renderFrameList() {
+    frameList.innerHTML = '';
+    group.frames.forEach((f, idx) => {
+      const item = document.createElement('div');
+      item.className = 'frame-item';
+      item.draggable = true;
+      const img = document.createElement('img');
+      img.src = URL.createObjectURL(f.file);
+      const num = document.createElement('div');
+      num.className = 'num';
+      num.textContent = `#${f.num}`;
+      item.append(img, num);
+
+      item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', String(idx));
+        item.style.opacity = '0.4';
+      });
+      item.addEventListener('dragend', () => { item.style.opacity = ''; });
+      item.addEventListener('dragover', (e) => { e.preventDefault(); item.style.borderColor = 'var(--accent)'; });
+      item.addEventListener('dragleave', () => { item.style.borderColor = 'var(--line)'; });
+      item.addEventListener('drop', (e) => {
+        e.preventDefault();
+        item.style.borderColor = 'var(--line)';
+        const fromIdx = parseInt(e.dataTransfer.getData('text/plain'), 10);
+        if (Number.isNaN(fromIdx) || fromIdx === idx) return;
+        const [moved] = group.frames.splice(fromIdx, 1);
+        group.frames.splice(idx, 0, moved);
+        renderFrameList();
+        if (group._restartPreview) group._restartPreview();
+      });
+
+      frameList.appendChild(item);
+    });
+  }
+  renderFrameList();
+
+  // --- Live canvas preview ---
+  const previewWrap = document.createElement('div');
+  previewWrap.className = 'preview-canvas-wrap';
+  const scale = Math.min(1, 260 / Math.max(group.maxW, group.maxH, 1));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(group.maxW * scale));
+  canvas.height = Math.max(1, Math.round(group.maxH * scale));
+  const previewStatus = document.createElement('div');
+  previewStatus.className = 'hint';
+  previewStatus.style.marginTop = '8px';
+  previewWrap.append(canvas, previewStatus);
+
+  const ctx = canvas.getContext('2d');
+  let timer = null;
+  let frameIdx = 0;
+  let loopsDone = 0;
+
+  function drawFrame(idx) {
+    const f = group.frames[idx];
+    if (!f || !f._bitmap) return;
+    const bw = f._bitmap.width * scale, bh = f._bitmap.height * scale;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(f._bitmap, Math.round((canvas.width - bw) / 2), Math.round((canvas.height - bh) / 2), bw, bh);
+  }
+
+  function stopPreview() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function restartPreview() {
+    stopPreview();
+    frameIdx = 0;
+    loopsDone = 0;
+    if (!group.frames.length) return;
+    drawFrame(0);
+    if (group.frames.length < 2) {
+      previewStatus.textContent = 'Single frame.';
+      return;
+    }
+    previewStatus.textContent = 'Previewing…';
+    timer = setInterval(() => {
+      frameIdx++;
+      if (frameIdx >= group.frames.length) {
+        frameIdx = 0;
+        loopsDone++;
+        if (group.loopMode === 'once') { stopPreview(); previewStatus.textContent = 'Finished (plays once).'; return; }
+        if (group.loopMode === 'capped' && loopsDone >= group.loopCount) { stopPreview(); previewStatus.textContent = `Finished (${group.loopCount} loop(s)).`; return; }
+      }
+      drawFrame(frameIdx);
+    }, group.delay);
+  }
+
+  group._restartPreview = restartPreview;
+  group._stopPreview = stopPreview;
+
+  flex.append(listWrap, previewWrap);
+  container.appendChild(flex);
+}
+
+// ---------- GIF generation + download ----------
+// There's no separate batch "Generate" step: encoding happens on demand,
+// either from a single ad's own Download button or from Download All
+// working through every valid ad in sequence. Each call here does the full
+// encode-then-download for one ad and updates that ad's own status line,
+// so per-card state stays correct whether triggered individually or in a
+// Download All run.
+async function processDownload(group) {
+  const btn = group._downloadBtn;
+  const statusEl = group._downloadStatus;
+  if (group.skip) return false;
+
+  if (btn) btn.disabled = true;
+  if (btn) btn.textContent = 'Encoding…';
+  if (statusEl) statusEl.textContent = '';
+
+  try {
+    // Each ad carries its own delay/loop settings, set via the per-ad
+    // controls in the preview table (defaults keyed by frame count).
+    const repeat = group.loopMode === 'infinite' ? 0
+      : group.loopMode === 'once' ? -1
+           : (group.loopCount <= 1 ? -1 : group.loopCount - 1);
+    const { blob, filename } = await encodeGif(group, group.delay, repeat);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    // Revoke well after the download has had time to start, not immediately.
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    if (statusEl) statusEl.textContent = `Downloaded · ${(blob.size / 1024).toFixed(0)} KB`;
+    return true;
+  } catch (err) {
+    if (statusEl) statusEl.textContent = `Failed: ${err.message}`;
+    return false;
+  } finally {
+    if (btn) { btn.disabled = group.skip; btn.textContent = 'Download'; }
+  }
+}
+
+async function encodeGif(group, delay, repeat) {
+  const { frames, maxW, maxH } = group;
+  const canvas = document.createElement('canvas');
+  canvas.width = maxW;
+  canvas.height = maxH;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+  const gif = GIFEncoder();
+
+  for (const frame of frames) {
+    const bmp = await createImageBitmap(frame.file);
+    ctx.clearRect(0, 0, maxW, maxH);
+    // Auto-pad/center: draw the frame centered within the max-dimension canvas.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, maxW, maxH);
+    const dx = Math.round((maxW - bmp.width) / 2);
+    const dy = Math.round((maxH - bmp.height) / 2);
+    ctx.drawImage(bmp, dx, dy);
+    bmp.close();
+
+    const { data } = ctx.getImageData(0, 0, maxW, maxH);
+    const palette = quantize(data, 256);
+    const index = applyPalette(data, palette);
+    gif.writeFrame(index, maxW, maxH, { palette, delay, repeat });
+  }
+
+  gif.finish();
+  const bytes = gif.bytes();
+  const blob = new Blob([bytes], { type: 'image/gif' });
+  return { blob, filename: `${sanitizeFilename(group._name)}.gif` };
+}
+
+function sanitizeFilename(name) {
+  return name.replace(/[\\/:*?"<>|]/g, '_');
+}
+
+// ---------- Download All (individual files, no zip) ----------
+function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+btnDownloadAll.addEventListener('click', async () => {
+  const validEntries = [...groups.entries()].filter(([, g]) => !g.skip);
+  if (validEntries.length === 0) {
+    statusGenerate.textContent = 'No valid ad groups to download (all skipped).';
+    return;
+  }
+
+  btnDownloadAll.disabled = true;
+  let okCount = 0;
+  try {
+    for (let i = 0; i < validEntries.length; i++) {
+      const [, group] = validEntries[i];
+      statusGenerate.textContent = `Processing ${i + 1} of ${validEntries.length}: ${group._name}…`;
+      const ok = await processDownload(group);
+      if (ok) okCount++;
+      // Small stagger between triggers — firing many downloads in the same tick
+      // gets some of them silently blocked by the browser's popup/download guard.
+      await sleep(250);
+    }
+  } finally {
+    statusGenerate.textContent = `Done — ${okCount} of ${validEntries.length} GIF(s) downloaded.`;
+    btnDownloadAll.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
