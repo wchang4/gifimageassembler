@@ -162,14 +162,23 @@
     border-radius:16px;
     box-shadow:var(--shadow-card);
     overflow:hidden;
+    position:relative;
   }
+  .card-remove{
+    position:absolute;top:8px;right:10px;z-index:2;
+    width:26px;height:26px;padding:0;border:none;box-shadow:none;
+    border-radius:50%;background:transparent;color:var(--bad);
+    font-size:15px;line-height:1;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .card-remove:hover{background:var(--bad-soft);transform:none;}
   .ad-card.status-ok{border-color:rgba(95,191,130,.45);}
   .ad-card.status-warn{border-color:rgba(232,163,61,.5);}
   .ad-card.status-bad{border-color:rgba(224,104,90,.5);opacity:.88;}
 
   .ad-card-header{
     display:flex;align-items:flex-start;justify-content:space-between;
-    gap:20px;padding:22px 24px 18px;flex-wrap:wrap;
+    gap:20px;padding:34px 24px 18px;flex-wrap:wrap;
   }
   .ad-title-block{display:flex;flex-direction:column;gap:10px;min-width:0;}
   .ad-title-block .name{
@@ -251,6 +260,10 @@
   .frame-item:active{cursor:grabbing;}
   .frame-item img{width:100%;height:104px;object-fit:contain;background:#0e1114;border-radius:8px;display:block;}
   .frame-item .num{font-family:var(--sans);font-size:11.5px;color:var(--text-dim);margin-top:6px;font-weight:600;}
+  .frame-item .fname{
+    font-family:var(--mono);font-size:10.5px;line-height:1.35;color:var(--text);margin-top:4px;
+    overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+  }
   .preview-canvas-wrap{flex-shrink:0;}
   .preview-canvas-wrap canvas{background:#0e1114;border-radius:12px;box-shadow:var(--shadow-sm);display:block;}
 
@@ -281,7 +294,7 @@
 <div class="wrap">
 
   <header>
-    <p class="eyebrow">Internal tool · v1.2 · runs entirely in this browser tab</p>
+    <p class="eyebrow">Internal tool · v1.4 · runs entirely in this browser tab</p>
     <h1>GIF Batch Assembler</h1>
     <p>Pick your exported ad frames, review the detected groups, then generate one animated GIF per ad. No files leave this machine.</p>
   </header>
@@ -290,9 +303,10 @@
     <h2>1 — Source files</h2>
     <div class="row">
       <button id="btn-select" class="primary">Select Files…</button>
+      <button id="btn-clear" type="button" style="display:none;">Clear all</button>
       <span class="status" id="status-folder">No files selected.</span>
     </div>
-    <p class="hint" style="margin:12px 0 0;">Choose the frames you want (hold Ctrl or Cmd, or Shift, to select several), or drag and drop image files anywhere on this page. Files are grouped by image size, then by name. The frame number can be anywhere in the name (AdName_01, AdName-1-final, Frame A).</p>
+    <p class="hint" style="margin:12px 0 0;">Choose the frames you want (hold Ctrl or Cmd, or Shift, to select several), or drag and drop image files anywhere on this page. Files are grouped by image size, then by name. The frame number can be anywhere in the name (AdName_01, AdName-1-final, Frame A). Each new selection or drop is added to the list below, so you can load several variants one after another and remove any you do not want.</p>
   </div>
 
   <div class="panel" id="panel-preview" style="display:none;">
@@ -512,39 +526,74 @@ function pickFiles() {
 // Merge prompts: [{ dim: '320x100', keys: [groupKey, ...] }]
 let mergeCandidates = [];
 let mergeCounter = 0;
+const dismissedMerges = new Set(); // signatures of prompts answered "Keep separate"
+const mergeSig = (c) => c.dim + '|' + [...c.keys].sort().join('|');
 
+// Identifies a file so the same one dropped twice is not added twice.
+const fileKey = (f) => `${f.name}|${f.size}|${f.lastModified}`;
+
+// Adds files to the list (never replaces it). New files are grouped among
+// themselves; existing ads keep their frames, settings and any manual edits.
 async function handleFiles(files, note = '') {
   statusFolder.classList.remove('err');
   if (!files.length) {
-    statusFolder.textContent = 'No files selected.' + note;
+    statusFolder.textContent = (groups.size ? `${groups.size} ad(s) in the list.` : 'No files selected.') + note;
     return;
   }
   statusFolder.textContent = 'Scanning…';
   ignoredCount = 0;
+  let dupCount = 0;
+  const have = new Set();
+  for (const g of groups.values()) for (const f of g.frames) have.add(fileKey(f.file));
+
   const accepted = [];
   for (const file of files) {
     if (!ACCEPTED_EXT.has(fileExt(file.name))) { ignoredCount++; continue; }
+    const k = fileKey(file);
+    if (have.has(k)) { dupCount++; continue; }
+    have.add(k);
     accepted.push({ file, rawName: file.name });
   }
 
+  const extras = (ignoredCount ? ` ${ignoredCount} file(s) ignored (unsupported type).` : '') +
+    (dupCount ? ` ${dupCount} file(s) skipped (already in the list).` : '') + note;
+
   if (accepted.length === 0) {
-    statusFolder.classList.add('err');
-    statusFolder.textContent = `None of the ${files.length} selected file(s) are a supported image type (PNG, JPG, WebP).` + note;
+    if (!dupCount) statusFolder.classList.add('err');
+    statusFolder.textContent = (dupCount
+      ? `Nothing new to add. ${groups.size} ad(s) in the list.`
+      : `None of the ${files.length} selected file(s) are a supported image type (PNG, JPG, WebP).`) + extras;
     return;
   }
 
   statusFolder.textContent = 'Reading image dimensions…';
-  const rawGroups = await planAds(accepted);
-  groups = await buildGroups(rawGroups);
+  const newGroups = await buildGroups(await planAds(accepted));
+
+  const nameTaken = (nm) => groups.has(nm) || [...groups.values()].some(v => v._name === nm);
+  for (const [key, g] of newGroups) {
+    let name = g._name, n = 2;
+    while (nameTaken(name)) name = `${g._name} (${n++})`;
+    g._name = name;
+    groups.set(name, g);
+  }
+
   mergeCandidates = await findMergeCandidates();
-  statusFolder.textContent = `${files.length} file(s) selected, ${groups.size} ad group(s) found` +
-    (ignoredCount ? `, ${ignoredCount} file(s) ignored (unsupported type).` : '.') + note;
+  statusFolder.textContent = `${accepted.length} file(s) added, ${groups.size} ad(s) in the list.` + extras;
 
   renderPreview();
-  panelPreview.style.display = '';
-  panelGenerate.style.display = '';
   statusGenerate.textContent = '';
 }
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (!groups.size) return;
+  if (!confirm(`Remove all ${groups.size} ad(s) from the list? Your source files are not touched.`)) return;
+  for (const g of groups.values()) if (g._stopPreview) g._stopPreview();
+  groups = new Map();
+  mergeCandidates = [];
+  dismissedMerges.clear();
+  statusFolder.classList.remove('err');
+  renderPreview();
+});
 
 btnSelect.addEventListener('click', async () => {
   const files = await pickFiles();
@@ -616,7 +665,8 @@ async function findMergeCandidates() {
   }
   return [...buckets.entries()]
     .filter(([, keys]) => keys.length >= 2)
-    .map(([dim, keys]) => ({ dim, keys }));
+    .map(([dim, keys]) => ({ dim, keys }))
+    .filter(c => !dismissedMerges.has(mergeSig(c)));
 }
 
 // Longest common prefix of the ad names, minus trailing separators; falls back to the first name.
@@ -723,6 +773,7 @@ function renderMergePrompts() {
       }
     });
     keepBtn.addEventListener('click', () => {
+      dismissedMerges.add(mergeSig(cand));
       mergeCandidates = mergeCandidates.filter(c => c.dim !== cand.dim);
       renderMergePrompts();
     });
@@ -881,6 +932,16 @@ function durationInfo(group) {
 
 // ---------- Preview table ----------
 function renderPreview() {
+  const hasAds = groups.size > 0;
+  panelPreview.style.display = hasAds ? '' : 'none';
+  panelGenerate.style.display = hasAds ? '' : 'none';
+  document.getElementById('btn-clear').style.display = hasAds ? '' : 'none';
+  if (!hasAds) {
+    previewList.innerHTML = '';
+    statusFolder.textContent = 'No files selected.';
+    renderMergePrompts();
+    return;
+  }
   renderMergePrompts();
   // Stop any running preview animations before we tear down the old DOM,
   // so no orphaned setIntervals keep ticking against removed canvases.
@@ -1110,6 +1171,20 @@ function renderPreview() {
     downloadBtn.textContent = 'Download';
     downloadBtn.disabled = group.skip;
     downloadBtn.addEventListener('click', () => processDownload(group));
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.className = 'card-remove';
+    removeBtn.textContent = '\u2715';
+    removeBtn.setAttribute('aria-label', 'Remove this ad from the list');
+    removeBtn.title = 'Remove this ad from the list (source files are not touched)';
+    removeBtn.addEventListener('click', () => {
+      if (group._stopPreview) group._stopPreview();
+      groups.delete(name);
+      statusFolder.classList.remove('err');
+      statusFolder.textContent = `Removed "${group._name}". ${groups.size} ad(s) in the list.`;
+      renderPreview();
+    });
+    card.appendChild(removeBtn);
     downloadInline.append(replayBtn, downloadBtn);
     const downloadStatus = document.createElement('div');
     downloadStatus.className = 'hint';
@@ -1205,6 +1280,11 @@ async function buildDetailPanel(container, group, adName) {
       img.src = URL.createObjectURL(f.file);
       img.style.cssText = 'max-width:200px;max-height:200px;object-fit:contain;background:#0e1114;border:1px solid var(--line);border-radius:8px;display:block;';
       container.appendChild(img);
+      const cap = document.createElement('div');
+      cap.className = 'hint';
+      cap.style.cssText = 'font-family:var(--mono);margin-top:6px;overflow-wrap:anywhere;';
+      cap.textContent = f.rawName;
+      container.appendChild(cap);
     }
     group._restartPreview = () => {};
     group._stopPreview = () => {};
@@ -1221,7 +1301,7 @@ async function buildDetailPanel(container, group, adName) {
   const listHint = document.createElement('div');
   listHint.className = 'hint';
   listHint.style.marginBottom = '8px';
-  listHint.textContent = 'Drag to reorder playback (label = original frame #). This only changes playback order, not filenames.';
+  listHint.textContent = 'Drag to reorder playback (label = frame #, then the source file name). This only changes playback order, not filenames.';
   const frameList = document.createElement('div');
   frameList.className = 'frame-list';
   listWrap.append(listHint, frameList);
@@ -1237,7 +1317,11 @@ async function buildDetailPanel(container, group, adName) {
       const num = document.createElement('div');
       num.className = 'num';
       num.textContent = `#${f.num}`;
-      item.append(img, num);
+      const fname = document.createElement('div');
+      fname.className = 'fname';
+      fname.textContent = f.rawName;
+      fname.title = f.rawName;
+      item.append(img, num, fname);
 
       item.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('text/plain', String(idx));
