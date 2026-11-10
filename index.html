@@ -281,7 +281,7 @@
 <div class="wrap">
 
   <header>
-    <p class="eyebrow">Internal tool · v1.1 · runs entirely in this browser tab</p>
+    <p class="eyebrow">Internal tool · v1.2 · runs entirely in this browser tab</p>
     <h1>GIF Batch Assembler</h1>
     <p>Pick your exported ad frames, review the detected groups, then generate one animated GIF per ad. No files leave this machine.</p>
   </header>
@@ -292,7 +292,7 @@
       <button id="btn-select" class="primary">Select Files…</button>
       <span class="status" id="status-folder">No files selected.</span>
     </div>
-    <p class="hint" style="margin:12px 0 0;">Choose the frames you want (hold Ctrl or Cmd, or Shift, to select several), or drag and drop image files anywhere on this page. Files named like AdName_01.png are grouped by name.</p>
+    <p class="hint" style="margin:12px 0 0;">Choose the frames you want (hold Ctrl or Cmd, or Shift, to select several), or drag and drop image files anywhere on this page. Files are grouped by image size, then by name. The frame number can be anywhere in the name (AdName_01, AdName-1-final, Frame A).</p>
   </div>
 
   <div class="panel" id="panel-preview" style="display:none;">
@@ -343,21 +343,134 @@ const panelGenerate = document.getElementById('panel-generate');
 const btnDownloadAll = document.getElementById('btn-download-all');
 const statusGenerate = document.getElementById('status-generate');
 
-// ---------- Filename parsing ----------
-// Splits "SummerSale_01.png" -> { prefix: "SummerSale", num: 1, ext: "png" }
-// Separator can be "_", "-", or a run of spaces. Greedy prefix match so the
-// LAST separator+digits run at the end of the name is treated as the frame number.
-function parseFilename(name) {
+// ---------- Filename analysis (size-first, then compare names) ----------
+// Contractors name files in all sorts of ways ("Ad_01.png", "Ad A.png",
+// "Display Ad - 320x50px Winter Storm-1-save 20.jpg"), so we do not assume a fixed
+// pattern. Instead: (1) group by pixel size, (2) within a size, files whose names are
+// identical once their numbers / single letters are blanked out are the same ad,
+// (3) the position whose value differs from file to file is the frame number.
+
+const fileExt = (name) => {
   const dot = name.lastIndexOf('.');
-  if (dot === -1) return null;
-  const ext = name.slice(dot + 1).toLowerCase();
-  const base = name.slice(0, dot);
-  const m = base.match(/^(.+)[_\-\s]+(\d+)$/);
-  if (!m) return null;
-  const prefix = m[1].trim();
-  if (!prefix) return null;
-  const num = parseInt(m[2], 10);
-  return { prefix, num, ext };
+  return dot === -1 ? '' : name.slice(dot + 1).toLowerCase();
+};
+const fileBase = (name) => {
+  const dot = name.lastIndexOf('.');
+  return dot === -1 ? name : name.slice(0, dot);
+};
+
+// Finds every "could be a frame number" token in a name: digit runs (ignoring sizes
+// like 320x50) and standalone single letters (A, b). Returns the tokens plus a
+// skeleton string with each token blanked out, used to compare names.
+function analyzeName(rawName) {
+  const base = fileBase(rawName);
+  const dimSpans = [];
+  for (const m of base.matchAll(/\d+\s*[x×]\s*\d+/gi)) dimSpans.push([m.index, m.index + m[0].length]);
+  const inDim = (i) => dimSpans.some(([a, b]) => i >= a && i < b);
+
+  const cands = [];
+  for (const m of base.matchAll(/\d+/g)) {
+    if (inDim(m.index)) continue;
+    cands.push({ start: m.index, end: m.index + m[0].length, kind: 'n', value: parseInt(m[0], 10) });
+  }
+  for (const m of base.matchAll(/(^|[^A-Za-z0-9])([A-Za-z])(?![A-Za-z0-9])/g)) {
+    const start = m.index + m[1].length;
+    if (inDim(start)) continue;
+    cands.push({ start, end: start + 1, kind: 'l', value: m[2].toLowerCase().charCodeAt(0) - 96 });
+  }
+  cands.sort((a, b) => a.start - b.start);
+
+  let skeleton = '', pos = 0;
+  for (const c of cands) {
+    skeleton += base.slice(pos, c.start).toLowerCase() + (c.kind === 'n' ? '\u0001' : '\u0002');
+    pos = c.end;
+  }
+  skeleton += base.slice(pos).toLowerCase();
+  return { rawName, base, cands, skeleton: skeleton.replace(/\s+/g, ' ') };
+}
+
+// Natural filename order (frame_2 before frame_10).
+const byFileName = (a, b) => a.rawName.localeCompare(b.rawName, undefined, { numeric: true, sensitivity: 'base' });
+
+// Given analyses that share a skeleton, pick which token is the frame number.
+// Returns the token position, or -1 if nothing varies.
+function pickIndexPosition(infos) {
+  const m = infos[0].cands.length;
+  let best = -1, bestScore = -Infinity;
+  for (let p = 0; p < m; p++) {
+    const vals = infos.map(i => i.cands[p].value);
+    const distinct = new Set(vals).size;
+    if (distinct < 2) continue; // same in every file, so not a frame number
+    const min = Math.min(...vals), max = Math.max(...vals);
+    let score = distinct * 100;
+    if (max - min === distinct - 1) score += 50; // consecutive run, e.g. 1,2,3
+    if (min <= 1) score += 25;                  // starts at 0 or 1
+    score -= p;                                 // tie-break: leftmost
+    if (score > bestScore) { bestScore = score; best = p; }
+  }
+  return best;
+}
+
+// Ad name = the text before the frame token (or after it if nothing is before).
+function adNameFromIndex(info, p) {
+  const c = info.cands[p];
+  const clean = (t) => t.replace(/^[\s_\-.]+|[\s_\-.]+$/g, '');
+  const before = clean(info.base.slice(0, c.start));
+  if (before.length >= 2) return before;
+  const after = clean(info.base.slice(c.end));
+  return after.length >= 2 ? after : (before || after || 'Ad');
+}
+
+// Assigns frame numbers to a set of files that belong to one ad.
+// Returns { nums: [...same order as infos], name }.
+function detectFrameNumbers(infos) {
+  if (infos.length === 1) return { nums: [1], name: infos[0].base };
+  const sameSkeleton = infos.every(i => i.skeleton === infos[0].skeleton);
+  const p = sameSkeleton ? pickIndexPosition(infos) : -1;
+  if (p >= 0) {
+    return { nums: infos.map(i => i.cands[p].value), name: adNameFromIndex(infos[0], p) };
+  }
+  // No usable number: fall back to natural filename order.
+  const order = [...infos].sort(byFileName);
+  return { nums: infos.map(i => order.indexOf(i) + 1), name: infos[0].base };
+}
+
+// Reads pixel size, groups by size, then by name skeleton. Returns Map(adName -> frames[]).
+async function planAds(entries) {
+  const infos = [];
+  for (const e of entries) {
+    const info = analyzeName(e.rawName);
+    info.file = e.file;
+    try {
+      const bmp = await createImageBitmap(e.file);
+      info.size = `${bmp.width}x${bmp.height}`;
+      bmp.close();
+    } catch (err) { info.size = '0x0'; }
+    infos.push(info);
+  }
+
+  const bySize = new Map();
+  for (const i of infos) {
+    if (!bySize.has(i.size)) bySize.set(i.size, []);
+    bySize.get(i.size).push(i);
+  }
+
+  const out = new Map();
+  for (const [size, list] of bySize) {
+    const bySkel = new Map();
+    for (const i of list) {
+      if (!bySkel.has(i.skeleton)) bySkel.set(i.skeleton, []);
+      bySkel.get(i.skeleton).push(i);
+    }
+    for (const cluster of bySkel.values()) {
+      const { nums, name } = detectFrameNumbers(cluster);
+      let key = name, n = 2;
+      if (out.has(key)) key = `${name} (${size})`;
+      while (out.has(key)) key = `${name} (${size}) ${n++}`;
+      out.set(key, cluster.map((i, idx) => ({ num: nums[idx], file: i.file, rawName: i.rawName })));
+    }
+  }
+  return out;
 }
 
 // ---------- File selection (standard file picker + drag and drop) ----------
@@ -396,9 +509,6 @@ function pickFiles() {
   });
 }
 
-// Natural filename order (frame_2 before frame_10).
-const byFileName = (a, b) => a.rawName.localeCompare(b.rawName, undefined, { numeric: true, sensitivity: 'base' });
-
 // Merge prompts: [{ dim: '320x100', keys: [groupKey, ...] }]
 let mergeCandidates = [];
 let mergeCounter = 0;
@@ -410,27 +520,25 @@ async function handleFiles(files, note = '') {
     return;
   }
   statusFolder.textContent = 'Scanning…';
-  const rawGroups = new Map(); // prefix -> array of {num, file, rawName}
   ignoredCount = 0;
-
+  const accepted = [];
   for (const file of files) {
-    const parsed = parseFilename(file.name);
-    if (!parsed || !ACCEPTED_EXT.has(parsed.ext)) { ignoredCount++; continue; }
-    if (!rawGroups.has(parsed.prefix)) rawGroups.set(parsed.prefix, []);
-    rawGroups.get(parsed.prefix).push({ num: parsed.num, file, rawName: file.name });
+    if (!ACCEPTED_EXT.has(fileExt(file.name))) { ignoredCount++; continue; }
+    accepted.push({ file, rawName: file.name });
   }
 
-  if (rawGroups.size === 0) {
+  if (accepted.length === 0) {
     statusFolder.classList.add('err');
-    statusFolder.textContent = `None of the ${files.length} selected file(s) matched the naming pattern (e.g. AdName_01.png) or a supported image type.` + note;
+    statusFolder.textContent = `None of the ${files.length} selected file(s) are a supported image type (PNG, JPG, WebP).` + note;
     return;
   }
 
   statusFolder.textContent = 'Reading image dimensions…';
+  const rawGroups = await planAds(accepted);
   groups = await buildGroups(rawGroups);
   mergeCandidates = await findMergeCandidates();
   statusFolder.textContent = `${files.length} file(s) selected, ${groups.size} ad group(s) found` +
-    (ignoredCount ? `, ${ignoredCount} file(s) ignored (unsupported type or name pattern).` : '.') + note;
+    (ignoredCount ? `, ${ignoredCount} file(s) ignored (unsupported type).` : '.') + note;
 
   renderPreview();
   panelPreview.style.display = '';
@@ -711,18 +819,21 @@ async function replaceAdFrames(name, group) {
   const picked = await pickFiles();
   if (picked.length === 0) return; // cancelled
 
-  const rawFrames = [];
   let ignored = 0;
+  const infos = [];
   for (const file of picked) {
-    const parsed = parseFilename(file.name);
-    if (!parsed || !ACCEPTED_EXT.has(parsed.ext)) { ignored++; continue; }
-    rawFrames.push({ num: parsed.num, file, rawName: file.name });
+    if (!ACCEPTED_EXT.has(fileExt(file.name))) { ignored++; continue; }
+    const info = analyzeName(file.name);
+    info.file = file;
+    infos.push(info);
   }
 
-  if (rawFrames.length === 0) {
-    alert('None of the selected files matched the expected naming pattern (e.g. Name_01.png), or none were a supported image type. Nothing was replaced.');
+  if (infos.length === 0) {
+    alert('None of the selected files were a supported image type (PNG, JPG, WebP). Nothing was replaced.');
     return;
   }
+  const { nums } = detectFrameNumbers(infos);
+  const rawFrames = infos.map((i, idx) => ({ num: nums[idx], file: i.file, rawName: i.rawName }));
 
   const oldFrameCount = group.frames.length;
   const processed = await processAdFrames(rawFrames);
