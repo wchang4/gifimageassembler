@@ -4,80 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GIF Batch Assembler</title>
+<script>try { const t = localStorage.getItem('pe-theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}</script>
+<link rel="stylesheet" href="css/caa-tool.css">
 <style>
+  /* The tool's own names, mapped onto the CAA tool style tokens (css/caa-tool.css). */
   :root{
-    --bg: #13161b;
-    --surface: #1b2027;
-    --surface-2: #232933;
-    --surface-3: #2b323d;
-    --field-bg: #262d37;
-    --text: #f1f3f6;
-    --text-dim: #9aa5b1;
-    --text-faint: #6d7684;
-    --accent: #e8a33d;
-    --accent-soft: rgba(232,163,61,.16);
-    --good: #5fbf82;
-    --good-soft: rgba(95,191,130,.16);
-    --warn: #e8a33d;
-    --warn-soft: rgba(232,163,61,.16);
-    --bad: #e0685a;
-    --bad-soft: rgba(224,104,90,.16);
-    --mono: "SF Mono", "Roboto Mono", Consolas, monospace;
-    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
-    --shadow-card: 0 12px 28px -10px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.3);
-    --shadow-sm: 0 2px 8px rgba(0,0,0,.3);
+    --bg: var(--paper);
+    --surface: var(--sheet);
+    --surface-2: var(--sheet-2);
+    --surface-3: var(--sheet-3);
+    --field-bg: var(--sheet);
+    --text: var(--ink);
+    --text-dim: var(--ink-2);
+    --text-faint: var(--ink-3);
+    --good: var(--ok);
+    --good-soft: var(--ok-soft);
+    --line: var(--rule);
+    --preview-bg: var(--sheet-3);
+    --mono: Consolas, "Roboto Mono", monospace;
+    --sans: var(--font);
+    --shadow-card: var(--shadow);
+    --shadow-sm: 0 1px 3px rgba(18,34,58,.14);
   }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:var(--sans);
-    font-size:14px;
-    line-height:1.5;
-    padding:32px 24px 80px;
-  }
-  .wrap{max-width:1040px;margin:0 auto;}
 
-  header{margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.06);}
-  header .eyebrow{
-    font-family:var(--sans);
-    font-size:12px;
-    font-weight:600;
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    color:var(--accent);
-    margin:0 0 8px;
-  }
-  header h1{margin:0 0 8px;font-size:26px;font-weight:700;letter-spacing:-.015em;}
-  header p{margin:0;color:var(--text-dim);max-width:640px;}
 
-  .panel{
-    background:var(--surface);
-    border:none;
-    box-shadow:var(--shadow-card);
-    border-radius:16px;
-    padding:22px 24px;
-    margin-bottom:20px;
-  }
-  .panel h2{
-    font-size:12.5px;
-    text-transform:uppercase;
-    letter-spacing:.07em;
-    color:var(--text-dim);
-    margin:0 0 14px;
-    font-weight:700;
-  }
+
 
   .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
   .row + .row{margin-top:14px;}
 
   button{
     font-family:var(--sans);
-    font-size:13.5px;
-    font-weight:600;
+    font-size:15px;
+    font-weight:700;
     border-radius:10px;
-    border:1px solid rgba(255,255,255,.08);
+    border:1px solid var(--line);
     background:var(--surface-2);
     color:var(--text);
     padding:10px 18px;
@@ -90,24 +51,24 @@
   button:disabled{opacity:.4;cursor:not-allowed;}
   button.primary{
     background:var(--accent);
-    color:#211603;
+    color:var(--accent-ink);
     border-color:transparent;
   }
-  button.primary:hover:not(:disabled){background:#f0ae4d;}
+  button.primary:hover:not(:disabled){background:var(--accent);filter:brightness(1.08);}
   button.ghost{background:transparent;box-shadow:none;}
 
-  .status{font-family:var(--sans);font-size:13px;color:var(--text-dim);}
+  .status{font-family:var(--sans);font-size:15px;color:var(--text-dim);}
   .status.err{color:var(--bad);}
 
   .field, input[type="number"], select.field{
     background:var(--field-bg);
     border:none;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    box-shadow:inset 0 0 0 1px var(--line);
     color:var(--text);
     border-radius:10px;
     padding:8px 10px;
     font-family:var(--sans);
-    font-size:13px;
+    font-size:15px;
   }
   .field:focus, input[type="number"]:focus, select.field:focus{
     outline:none;
@@ -120,22 +81,19 @@
     margin:0;
   }
   input.no-spin{-moz-appearance:textfield;}
-  .hint{color:var(--text-dim);font-size:12.5px;}
 
-  table{width:100%;border-collapse:collapse;font-size:13px;}
+  table{width:100%;border-collapse:collapse;font-size:15px;}
   thead th{
     text-align:left;
-    font-size:11.5px;
-    text-transform:uppercase;
-    letter-spacing:.06em;
+    font-size:14px;
     color:var(--text-dim);
     padding:0 10px 10px;
-    border-bottom:1px solid rgba(255,255,255,.06);
+    border-bottom:1px solid var(--line);
     font-weight:700;
   }
   tbody td{
     padding:10px;
-    border-bottom:1px solid rgba(255,255,255,.05);
+    border-bottom:1px solid var(--line);
     vertical-align:middle;
   }
   tbody tr:last-child td{border-bottom:none;}
@@ -144,9 +102,9 @@
   .tag{
     display:inline-block;
     font-family:var(--sans);
-    font-size:12.5px;
-    font-weight:500;
-    padding:5px 11px;
+    font-size:14px;
+    font-weight:600;
+    padding:6px 12px;
     border-radius:8px;
     width:fit-content;
   }
@@ -158,8 +116,8 @@
   .ad-list{display:flex;flex-direction:column;gap:20px;}
   .ad-card{
     background:var(--surface);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:16px;
+    border:2px solid var(--line);
+    border-radius:14px;
     box-shadow:var(--shadow-card);
     overflow:hidden;
     position:relative;
@@ -172,9 +130,9 @@
     display:flex;align-items:center;justify-content:center;
   }
   .card-remove:hover{background:var(--bad-soft);transform:none;}
-  .ad-card.status-ok{border-color:rgba(95,191,130,.45);}
-  .ad-card.status-warn{border-color:rgba(232,163,61,.5);}
-  .ad-card.status-bad{border-color:rgba(224,104,90,.5);opacity:.88;}
+  .ad-card.status-ok{border-color:var(--ok);}
+  .ad-card.status-warn{border-color:var(--warn);}
+  .ad-card.status-bad{border-color:var(--bad);opacity:.88;}
 
   .ad-card-header{
     display:flex;align-items:flex-start;justify-content:space-between;
@@ -201,10 +159,10 @@
     min-width:160px;max-width:100%;
   }
   .name-input:focus{outline:none;}
-  .name-error{font-size:12px;color:var(--bad);}
+  .name-error{font-size:14px;color:var(--bad);}
   .status-pill{
-    font-family:var(--sans);font-size:12px;font-weight:600;
-    border-radius:20px;padding:4px 13px;width:fit-content;
+    font-family:var(--sans);font-size:14px;font-weight:700;
+    border-radius:99px;padding:4px 12px;width:fit-content;
   }
   .status-pill.ok{background:var(--good-soft);color:var(--good);}
   .status-pill.warn{background:var(--warn-soft);color:var(--warn);}
@@ -223,7 +181,7 @@
     color:var(--text);font-variant-numeric:tabular-nums;
   }
   .frame-stat .label{
-    font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;
+    font-size:13px;
     color:var(--text-dim);font-weight:700;margin-top:5px;
   }
 
@@ -233,7 +191,7 @@
   }
   .control-group{display:flex;flex-direction:column;gap:6px;}
   .control-label{
-    font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+    font-size:14px;
     color:var(--text-dim);font-weight:700;
   }
   .control-inline{display:flex;align-items:center;gap:8px;}
@@ -258,75 +216,87 @@
     transition:box-shadow .12s ease;
   }
   .frame-item:active{cursor:grabbing;}
-  .frame-item img{width:100%;height:104px;object-fit:contain;background:#0e1114;border-radius:8px;display:block;}
-  .frame-item .num{font-family:var(--sans);font-size:11.5px;color:var(--text-dim);margin-top:6px;font-weight:600;}
+  .frame-item img{width:100%;height:104px;object-fit:contain;background:var(--preview-bg);border-radius:8px;display:block;}
+  .frame-item .num{font-family:var(--sans);font-size:13px;color:var(--text-dim);margin-top:6px;font-weight:600;}
   .frame-item .fname{
-    font-family:var(--mono);font-size:10.5px;line-height:1.35;color:var(--text);margin-top:4px;
+    font-family:var(--mono);font-size:12px;line-height:1.35;color:var(--text);margin-top:4px;
     overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
   }
   .preview-canvas-wrap{flex-shrink:0;}
-  .preview-canvas-wrap canvas{background:#0e1114;border-radius:12px;box-shadow:var(--shadow-sm);display:block;}
+  .preview-canvas-wrap canvas{background:var(--preview-bg);border-radius:12px;box-shadow:var(--shadow-sm);display:block;}
 
   body.drop-active #panel-source{box-shadow:0 0 0 2px var(--accent), var(--shadow-card);}
   .merge-prompt{
-    background:var(--accent-soft);
-    border:1px solid rgba(232,163,61,.5);
-    border-radius:16px;
+    background:var(--warn-soft);
+    border:1px solid var(--warn);
+    border-radius:12px;
     padding:18px 20px;
     margin-bottom:20px;
   }
   .merge-prompt .merge-title{font-weight:700;font-size:14.5px;margin:0 0 4px;}
   .merge-files{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 14px;}
-  .merge-file{font-family:var(--mono);font-size:12px;background:var(--surface-2);border-radius:8px;padding:4px 9px;color:var(--text);overflow-wrap:anywhere;}
+  .merge-file{font-family:var(--mono);font-size:13px;background:var(--surface-2);border-radius:8px;padding:4px 9px;color:var(--text);overflow-wrap:anywhere;}
   .merge-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
   .merge-controls input[type="text"]{
     background:var(--field-bg);border:none;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05);
+    box-shadow:inset 0 0 0 1px var(--line);
     color:var(--text);border-radius:10px;padding:8px 10px;
-    font-family:var(--sans);font-size:13px;min-width:220px;
+    font-family:var(--sans);font-size:15px;min-width:220px;
   }
   .merge-controls input[type="text"]:focus{outline:none;box-shadow:0 0 0 2px var(--accent);}
-  .merge-error{color:var(--bad);font-size:12.5px;margin-top:8px;display:none;}
+  .merge-error{color:var(--bad);font-size:14px;margin-top:8px;display:none;}
   .empty{color:var(--text-dim);font-style:italic;padding:6px 0;}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <header>
-    <p class="eyebrow">Internal tool · v1.4 · runs entirely in this browser tab</p>
-    <h1>GIF Batch Assembler</h1>
-    <p>Pick your exported ad frames, review the detected groups, then generate one animated GIF per ad. No files leave this machine.</p>
+  <header class="top">
+    <div class="head">
+      <a class="brand" href="index.html" aria-label="CAA North &amp; East Ontario: GIF Batch Assembler home"><img class="logo logo-colour" src="img/caaneo-colour.svg" alt="CAA North &amp; East Ontario"><img class="logo logo-white" src="img/caaneo-white.svg" alt=""></a>
+      <div>
+        <h1>GIF Batch Assembler</h1>
+        <p class="lede">Internal GIF making tool for CAA North &amp; East Ontario. Choose your exported ad frames, check how they were grouped, then download one animated GIF per ad. Everything happens in this browser tab; your files never leave this computer.</p>
+      </div>
+    </div>
+    <nav class="top-tools" aria-label="Colour theme">
+      <div class="theme-pick" role="group" aria-label="Colour theme">
+        <button type="button" data-set-theme="light" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Light</button>
+        <button type="button" data-set-theme="dark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.5 8.5 0 0 1 9.4 3.5a8.5 8.5 0 1 0 11.1 11.1z" fill="currentColor"/></svg>Dark</button>
+      </div>
+    </nav>
   </header>
 
-  <div class="panel" id="panel-source">
-    <h2>1 — Source files</h2>
+  <section class="panel step" id="panel-source">
+    <h2><span class="n">1</span>Choose your frames</h2>
     <div class="row">
-      <button id="btn-select" class="primary">Select Files…</button>
+      <button id="btn-select" class="primary">Choose files</button>
       <button id="btn-clear" type="button" style="display:none;">Clear all</button>
       <span class="status" id="status-folder">No files selected.</span>
     </div>
     <p class="hint" style="margin:12px 0 0;">Choose the frames you want (hold Ctrl or Cmd, or Shift, to select several), or drag and drop image files anywhere on this page. Files are grouped by image size, then by name. The frame number can be anywhere in the name (AdName_01, AdName-1-final, Frame A). Each new selection or drop is added to the list below, so you can load several variants one after another and remove any you do not want.</p>
-  </div>
+  </section>
 
-  <div class="panel" id="panel-preview" style="display:none;">
-    <h2>2 — Preview &amp; per-ad settings</h2>
-    <p class="hint" style="margin:-4px 0 14px;">Speed and loop default automatically by frame count (2-frame → 3500ms/capped ×4, 3-frame → 2400ms/capped ×4, other counts → 110ms/infinite). Override any ad individually. Colored edge = status: green OK, amber has warnings, red skipped.</p>
+  <section class="panel step" id="panel-preview" style="display:none;">
+    <h2><span class="n">2</span>Check each ad</h2>
+    <p class="hint" style="margin:-4px 0 14px;">Speed and looping are set from the number of frames: 2 frames show 3.5 s each and loop 4 times, 3 frames show 2.4 s each and loop 4 times, any other count shows 0.11 s each and loops forever. Change any ad on its own card. The card edge shows its status: green is ready, amber has something to check, red is skipped.</p>
     <div id="merge-prompts"></div>
     <div id="preview-list" class="ad-list"></div>
-  </div>
+  </section>
 
-  <div class="panel" id="panel-generate" style="display:none;">
-    <h2>3 — Download</h2>
-    <p class="hint" style="margin:-4px 0 14px;">Each card above has its own Download button. Use Download All to process every valid ad in sequence.</p>
+  <section class="panel step" id="panel-generate" style="display:none;">
+    <h2><span class="n">3</span>Download the GIFs</h2>
+    <p class="hint" style="margin:-4px 0 14px;">Each card above has its own Download button. Download all makes every ready ad, one after another.</p>
     <div class="row">
-      <button id="btn-download-all" class="primary">Download All</button>
+      <button id="btn-download-all" class="primary">Download all</button>
       <span class="status" id="status-generate"></span>
     </div>
-  </div>
+  </section>
 
+  <p class="hint">Version 1.4. Have someone review every GIF before it is sent.</p>
 </div>
 
+<script src="js/theme.js"></script>
 <script type="module">
 import { GIFEncoder, quantize, applyPalette } from "https://unpkg.com/gifenc@1.0.3/dist/gifenc.esm.js";
 
@@ -798,7 +768,7 @@ async function processAdFrames(rawFrames) {
     else byNum.set(f.num, f);
   }
   if (dupNums.size) {
-    warnings.push({ level: 'warn', text: `Duplicate frame number(s): ${[...dupNums].sort((a,b)=>a-b).join(', ')} — using first file found for each, others ignored.` });
+    warnings.push({ level: 'warn', text: `Duplicate frame number(s): ${[...dupNums].sort((a,b)=>a-b).join(', ')}. The first file found for each is used; the others are ignored.` });
   }
 
   // Sorted unique frames by numeric value
@@ -812,14 +782,14 @@ async function processAdFrames(rawFrames) {
       if (!byNum.has(n)) missing.push(n);
     }
     if (missing.length) {
-      warnings.push({ level: 'warn', text: `Missing frame number(s): ${missing.join(', ')} — will render with a gap.` });
+      warnings.push({ level: 'warn', text: `Missing frame number(s): ${missing.join(', ')}. The GIF will have a gap there.` });
     }
   }
 
   // Single-frame ads: flag, exclude from generation
   let skip = false;
   if (nums.length < 2) {
-    warnings.push({ level: 'bad', text: 'Only one frame found — not enough to animate. Skipped.' });
+    warnings.push({ level: 'bad', text: 'Only one frame found, so there is nothing to animate. Skipped.' });
     skip = true;
   }
 
@@ -841,7 +811,7 @@ async function processAdFrames(rawFrames) {
     const firstW = frames[0].width, firstH = frames[0].height;
     if (frames.some(f => f.width !== firstW || f.height !== firstH)) {
       sizeMismatch = true;
-      warnings.push({ level: 'warn', text: `Mismatched frame sizes — will auto-pad/center all frames to ${maxW}×${maxH}.` });
+      warnings.push({ level: 'warn', text: `Frames are different sizes. Each one will be centred on a ${maxW}×${maxH} canvas.` });
     }
   }
 
@@ -1125,7 +1095,7 @@ function renderPreview() {
       const info = durationInfo(group);
       durationLine.textContent = info.text;
       durationLine.style.color = info.exceeds ? 'var(--bad)' : '';
-      if (info.exceeds) durationLine.textContent += ' — exceeds 30s cap';
+      if (info.exceeds) durationLine.textContent += ' (over the 30 s limit)';
     }
 
     speedInput.addEventListener('input', () => {
@@ -1260,7 +1230,7 @@ async function buildDetailPanel(container, group, adName) {
   });
   const replaceHint = document.createElement('span');
   replaceHint.className = 'hint';
-  replaceHint.textContent = "Select new frame file(s) to replace this ad's set only — the rest of the batch is untouched.";
+  replaceHint.textContent = "Choose new frame files to replace this ad's frames only. The other ads stay as they are.";
   header.append(replaceBtn, replaceHint);
   container.appendChild(header);
 
@@ -1272,13 +1242,13 @@ async function buildDetailPanel(container, group, adName) {
     msg.style.marginBottom = '12px';
     msg.textContent = group.frames.length === 0
       ? 'No frames for this ad.'
-      : 'Only one frame — not enough to animate. Use Replace frames above to add more.';
+      : 'Only one frame, so there is nothing to animate. Use Replace frames above to add more.';
     container.appendChild(msg);
     if (group.frames.length === 1) {
       const f = group.frames[0];
       const img = document.createElement('img');
       img.src = URL.createObjectURL(f.file);
-      img.style.cssText = 'max-width:200px;max-height:200px;object-fit:contain;background:#0e1114;border:1px solid var(--line);border-radius:8px;display:block;';
+      img.style.cssText = 'max-width:200px;max-height:200px;object-fit:contain;background:var(--preview-bg);border:1px solid var(--line);border-radius:8px;display:block;';
       container.appendChild(img);
       const cap = document.createElement('div');
       cap.className = 'hint';
@@ -1507,7 +1477,7 @@ btnDownloadAll.addEventListener('click', async () => {
       await sleep(250);
     }
   } finally {
-    statusGenerate.textContent = `Done — ${okCount} of ${validEntries.length} GIF(s) downloaded.`;
+    statusGenerate.textContent = `Done: ${okCount} of ${validEntries.length} GIF(s) downloaded.`;
     btnDownloadAll.disabled = false;
   }
 });
